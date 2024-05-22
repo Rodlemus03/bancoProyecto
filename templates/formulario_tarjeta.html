@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Tarjeta de Crédito</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Solicitud de Tarjeta de Crédito</h2>
+        <form id="solicitud_form" action="{{ url_for('solicitud_tarjeta') }}" method="post">
+            <div class="form-group">
+                <label for="tipo_tarjeta">Tipo de Tarjeta</label>
+                <select class="form-control" id="tipo_tarjeta" name="tipo_tarjeta">
+                    <option value="Visa">Visa</option>
+                    <option value="MasterCard">MasterCard</option>
+                    <option value="American Express">American Express</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submit_button">Solicitar</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Función para mostrar un mensaje de éxito antes de enviar el formulario
+        document.getElementById("solicitud_form").addEventListener("submit", function(event){
+            // Evitar que el formulario se envíe automáticamente
+            event.preventDefault();
+            
+            // Mostrar mensaje de éxito
+            alert("Tu solicitud de tarjeta fue ingresada con éxito.");
+
+            // Enviar el formulario después de 1 segundo (1000 milisegundos)
+            setTimeout(function(){
+                document.getElementById("solicitud_form").submit();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

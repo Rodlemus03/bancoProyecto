@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activar Tarjetas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px;
+        }
+        .card-custom {
+            margin: 20px 0;
+        }
+        .card-header-custom {
+            background-color: #007bff;
+            color: white;
+        }
+        .card-body-custom {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Mi banco</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/home">Inicio <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Cerrar Sesión</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="my-4">Tarjetas Nuevas</h1>
+        <div class="row">
+            {% if tarjetas_bloqueadas %}
+                {% for tarjeta in tarjetas_bloqueadas %}
+                    <div class="col-md-4">
+                        <div class="card card-custom">
+                            <div class="card-header card-header-custom">
+                                Tarjeta {{ tarjeta.id }}
+                            </div>
+                            <div class="card-body card-body-cu2stom">
+                                <h5 class="card-title">Número: {{ tarjeta.numero_tarjeta }}</h5>
+                                <p class="card-text">Usuario ID: {{ tarjeta.usuario_id }}</p>
+                                <p class="card-text">Estado: {{ tarjeta.estado }}</p>
+                                <form action="{{ url_for('desbloquear_tarjeta') }}" method="post">
+                                    <input type="hidden" name="tarjeta_id" value="{{ tarjeta.id }}">
+                                    <button type="submit" class="btn btn-primary">Activar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center" role="alert">
+                        NO HAY TARJETAS PARA ACTIVAR
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activar Tarjetas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px;
+        }
+        .card-custom {
+            margin: 20px 0;
+        }
+        .card-header-custom {
+            background-color: #007bff;
+            color: white;
+        }
+        .card-body-custom {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Mi banco</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/home">Inicio <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Cerrar Sesión</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="my-4">Tarjetas Nuevas</h1>
+        <div class="row">
+            {% if tarjetas_activas %}
+                {% for tarjeta in tarjetas_activas %}
+                    <div class="col-md-4">
+                        <div class="card card-custom">
+                            <div class="card-header card-header-custom">
+                                Tarjeta {{ tarjeta.id }}
+                            </div>
+                            <div class="card-body card-body-custom">
+                                <h5 class="card-title">Número: {{ tarjeta.numero_tarjeta }}</h5>
+                                <p class="card-text">Estado: {{ tarjeta.estado }}</p>
+                                <p class="card-text">Saldo: {{ tarjeta.saldo_actual }}</p>
+                                <button type="button" class="btn btn-primary" onclick="mostrarModal('{{ tarjeta.id }}', {{ tarjeta.saldo_actual }}, {{ tarjeta.saldo_al_corte }})">Pagar</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center" role="alert">
+                        NO HAY TARJETAS PARA ACTIVAR
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal para pago de tarjeta -->
+    <div class="modal fade" id="modalPago" tabindex="-1" role="dialog" aria-labelledby="modalPagoLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPagoLabel">Pagar Tarjeta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formularioPago">
+                        <input type="hidden" id="tarjeta_id" name="tarjeta_id">
+                        <div class="form-group">
+                            <label for="monto">Seleccione el monto a pagar:</label>
+                            <select class="form-control" id="monto" name="monto" onchange="mostrarMontoVariable()">
+                                <option value="" disabled selected>Seleccione una opción</option>
+                                <option id="op_saldo_actual" value=""></option>
+                                <option id="op_saldo_al_corte" value=""></option>
+                                <option value="variable">Monto Variable</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="montoVariable" style="display: none;">
+                            <label for="monto_variable">Monto Variable:</label>
+                            <input type="number" class="form-control" id="monto_variable" name="monto_variable" step="0.01">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="procesarPago()">Confirmar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function mostrarModal(tarjetaId, saldoActual, saldoAlCorte) {
+            document.getElementById('tarjeta_id').value = tarjetaId;
+            document.getElementById('op_saldo_actual').textContent = `Saldo Actual: $${saldoActual}`;
+            document.getElementById('op_saldo_actual').value = saldoActual;
+            document.getElementById('op_saldo_al_corte').textContent = `Saldo al Corte: $${saldoAlCorte}`;
+            document.getElementById('op_saldo_al_corte').value = saldoAlCorte;
+            $('#modalPago').modal('show');
+        }
+
+        function mostrarMontoVariable() {
+            var monto = document.getElementById('monto').value;
+            var montoVariable = document.getElementById('montoVariable');
+            if (monto === 'variable') {
+                montoVariable.style.display = 'block';
+            } else {
+                montoVariable.style.display = 'none';
+            }
+        }
+
+        function procesarPago() {
+            var tarjetaId = document.getElementById('tarjeta_id').value;
+            var montoSelect = document.getElementById('monto').value;
+            var montoVariable = document.getElementById('monto_variable').value;
+
+            var montoAPagar = montoSelect === 'variable' ? montoVariable : montoSelect;
+
+            fetch('/pagar_tarjeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tarjeta_id: tarjetaId,
+                    monto: montoAPagar
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Pago procesado exitosamente');
+                    $('#modalPago').modal('hide');
+                } else {
+                    alert('Error al procesar el pago: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al procesar el pago');
+            });
+        }
+    </script>
+</body>
+</html>

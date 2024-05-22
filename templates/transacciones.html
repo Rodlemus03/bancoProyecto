@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transacciones</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Transacciones</h1>
+    <table id="transaccionesTable">
+        <tr>
+            <th>ID Tarjeta</th>
+            <th>Monto</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+        </tr>
+        {% for transaccion in transacciones %}
+        <tr style="background-color: {% if transaccion.tipo == 'compra' %} rgb(242, 105, 105); {% else %} rgb(0, 255, 47); {% endif %}">
+            <td>{{ transaccion.tarjeta_id }}</td>
+            <td>{{ transaccion.monto }}</td>
+            <td>{{ transaccion.tipo }}</td>
+            <td>{{ transaccion.fecha }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div id="pagination-container"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="path_to_simple_pagination.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#transaccionesTable').pagination({
+                items: "{{ transacciones|length }}",
+                itemsOnPage: 20,
+                cssStyle: 'light-theme',
+                onPageClick: function(pageNumber, event) {
+                    var start = (pageNumber - 1) * 20;
+                    var end = pageNumber * 20;
+                    $('#transaccionesTable tr').hide().slice(start, end).show();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

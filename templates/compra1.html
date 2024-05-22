@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito de Compras</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* Estilos adicionales */
+    .card {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Carrito de Compras</h1>
+    <div id="productos">
+      <!-- Aquí se mostrarán los productos -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Producto 1</h5>
+          <p class="card-text">Precio: $10.00</p>
+          <button class="btn btn-primary" onclick="agregarAlCarrito(10.00)">Agregar al carrito</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Producto 2</h5>
+          <p class="card-text">Precio: $20.00</p>
+          <button class="btn btn-primary" onclick="agregarAlCarrito(20.00)">Agregar al carrito</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Producto 3</h5>
+          <p class="card-text">Precio: $30.00</p>
+          <button class="btn btn-primary" onclick="agregarAlCarrito(30.00)">Agregar al carrito</button>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <h4>Total: <span id="total">$60.00</span></h4>
+      <button id="pagar" class="btn btn-primary" data-toggle="modal" data-target="#modalPago">Pagar</button>
+    </div>
+  </div>
+
+  <!-- Modal para ingresar los datos de la tarjeta de crédito -->
+  <div class="modal fade" id="modalPago" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Datos de la Tarjeta de Crédito</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="formularioPago">
+            <div class="form-group">
+              <label for="numeroTarjeta">Número de Tarjeta</label>
+              <input type="text" class="form-control" id="numeroTarjeta" placeholder="Ingrese el número de la tarjeta">
+            </div>
+            <div class="form-group">
+              <label for="nombreTitular">Nombre del Titular</label>
+              <input type="text" class="form-control" id="nombreTitular" placeholder="Ingrese el nombre del titular de la tarjeta">
+            </div>
+            <div class="form-group">
+              <label for="fechaExpiracion">Fecha de Expiración</label>
+              <input type="text" class="form-control" id="fechaExpiracion" placeholder="MM/YY">
+            </div>
+            <div class="form-group">
+              <label for="codigoSeguridad">Código de Seguridad (CVV)</label>
+              <input type="text" class="form-control" id="codigoSeguridad" placeholder="Ingrese el CVV">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" onclick="procesarPago()">Pagar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Función para agregar un producto al carrito
+    function agregarAlCarrito(precio) {
+      total += precio;
+      actualizarTotal();
+    }
+
+    // Función para actualizar el total en la página
+    function actualizarTotal() {
+      document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    }
+
+    // Función para procesar el pago
+    async function procesarPago() {
+      // Aquí obtendrías los datos de la tarjeta y los enviarías a tu API para procesar el pago
+      const numeroTarjeta = document.getElementById('numeroTarjeta').value;
+      const fechaExpiracion = document.getElementById('fechaExpiracion').value;
+      const cvv = document.getElementById('codigoSeguridad').value;
+      const monto = total;  // Usar el total del carrito como monto
+      const descripcion = "Compra en supermercado";  // Puedes cambiar esto según tus necesidades
+      const tipo="compra"
+      // Crear el objeto de datos para enviar a la API
+      const datosPago = {
+        numero_tarjeta: numeroTarjeta,
+        fecha_vencimiento: fechaExpiracion,
+        cvv: cvv,
+        monto: monto,
+        descripcion: descripcion,
+        tipo:tipo
+      
+      };
+      console.table(datosPago)
+
+      try {
+        // Llamar a la API de transacciones
+        const response = await fetch('api/crear_transaccion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(datosPago)
+          
+        });
+
+        if (response.ok) {
+          alert('Pago procesado exitosamente!');
+        } else {
+          alert('Error al procesar el pago.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al procesar el pago.');
+      }
+
+      // Cerrar el modal después de procesar el pago
+      $('#modalPago').modal('hide');
+    }
+
+    // Variable para almacenar el total del carrito
+    let total = 60.00;
+
+    // Al cargar la página, actualizar el total
+    document.addEventListener('DOMContentLoaded', function() {
+      actualizarTotal();
+    });
+
+    // Escuchar el clic en el botón de pagar
+    document.getElementById('pagar').addEventListener('click', function() {
+      // Limpiar los campos del modal cada vez que se abre
+      document.getElementById('formularioPago').reset();
+    });
+  </script>
+</body>
+</html>
